@@ -1,0 +1,11 @@
+mysql:
+  host: localhost
+  port: 3306
+  user: root
+  password: <PASSWORD>
+  database: test
+server:
+  port: 8080
+  log: true
+  log_level: debug
+  charset: utf8mb4
