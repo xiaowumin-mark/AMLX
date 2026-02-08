@@ -1,0 +1,4 @@
+time=2026-02-08T00:55:36+08:00 level=INFO msg="mysql connected and migrated"
+time=2026-02-08T00:55:36+08:00 level=INFO msg="AMLX is ready"
+time=2026-02-08T00:55:44+08:00 level=INFO msg="mysql connected and migrated"
+time=2026-02-08T00:55:44+08:00 level=INFO msg="AMLX is ready"

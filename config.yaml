@@ -1,11 +1,40 @@
 mysql:
-  host: localhost
+  host: 127.0.0.1
   port: 3306
   user: root
-  password: <PASSWORD>
-  database: test
+  password: "123456"
+  database: amlx
+  charset: utf8mb4
+  parse_time: true
+  loc: Local
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: 30m
+  conn_max_idle_time: 10m
+  log_level: warn
+  slow_threshold_ms: 200
 server:
   port: 8080
   log: true
-  log_level: debug
-  charset: utf8mb4
+  log_level: info
+  read_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 60s
+log:
+  level: info
+  format: text
+  output: stdout
+  file: logs/amlx.log
+  add_source: false
+  time_format: 2006-01-02T15:04:05Z07:00
+auth:
+  jwt_secret: "dev-secret-change-me"
+  issuer: "AMLX"
+  access_ttl: 15m
+  refresh_ttl: 168h
+  bcrypt_cost: 10
+  allow_register: true
+  allow_register_role: false
+  default_role_id: 1
+  refresh_token_reuse: false
+  bootstrap_admin_role: true

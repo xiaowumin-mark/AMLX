@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/xiaowumin-mark/AMLX/model"
 	"gorm.io/gorm"
@@ -27,7 +28,8 @@ func (s *refreshTokenStore) Create(ctx context.Context, token *model.RefreshToke
 }
 func (s *refreshTokenStore) GetValid(ctx context.Context, token string) (*model.RefreshTokens, error) {
 	var refreshToken model.RefreshTokens
-	return &refreshToken, s.db.WithContext(ctx).Where("token = ? AND revoked = ?", token, false).First(&refreshToken).Error
+	now := time.Now().UnixMilli()
+	return &refreshToken, s.db.WithContext(ctx).Where("token = ? AND revoked = ? AND expired_at > ?", token, false, now).First(&refreshToken).Error
 }
 func (s *refreshTokenStore) Revoke(ctx context.Context, token string) error {
 	return s.db.WithContext(ctx).Model(&model.RefreshTokens{}).Where("token = ?", token).Update("revoked", true).Error

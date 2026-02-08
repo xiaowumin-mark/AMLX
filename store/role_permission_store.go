@@ -34,6 +34,11 @@ func (s *rolePermissionStore) ListPermissionIDsByRole(ctx context.Context, roleI
 
 }
 func (s *rolePermissionStore) HasPermission(ctx context.Context, roleID uint, permName string) (bool, error) {
-	var permission model.Permissions
-	return s.db.WithContext(ctx).Where("name = ?", permName).First(&permission).Error == nil, s.db.WithContext(ctx).Model(&model.RolePermissions{}).Where("role_id = ? AND permission_id = ?", roleID, permission.ID).Error
+	var count int64
+	err := s.db.WithContext(ctx).
+		Table("role_permissions").
+		Joins("JOIN permissions ON permissions.id = role_permissions.permission_id").
+		Where("role_permissions.role_id = ? AND permissions.name = ?", roleID, permName).
+		Count(&count).Error
+	return count > 0, err
 }

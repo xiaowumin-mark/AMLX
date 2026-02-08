@@ -13,6 +13,7 @@ type UserStore interface {
 	Create(ctx context.Context, user *model.Users) error
 	Update(ctx context.Context, user *model.Users) error
 	SetBan(ctx context.Context, id uint, ban bool) error
+	Count(ctx context.Context) (int64, error)
 }
 
 type userStore struct {
@@ -39,4 +40,10 @@ func (s *userStore) Update(ctx context.Context, user *model.Users) error {
 }
 func (s *userStore) SetBan(ctx context.Context, id uint, ban bool) error {
 	return s.db.WithContext(ctx).Model(&model.Users{}).Where("id = ?", id).Update("ban", ban).Error
+}
+
+func (s *userStore) Count(ctx context.Context) (int64, error) {
+	var count int64
+	err := s.db.WithContext(ctx).Model(&model.Users{}).Count(&count).Error
+	return count, err
 }
