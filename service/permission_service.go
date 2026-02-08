@@ -18,13 +18,13 @@ var (
 )
 
 type PermissionService interface {
-	CreateRole(ctx context.Context, name, description string) (*model.Roles, error)
-	CreatePermission(ctx context.Context, name, description string) (*model.Permissions, error)
-	AddPermissionToRole(ctx context.Context, roleID, permID uint) error
-	RemovePermissionFromRole(ctx context.Context, roleID, permID uint) error
-	ListPermissionsByRole(ctx context.Context, roleID uint) ([]model.Permissions, error)
-	HasPermission(ctx context.Context, roleID uint, permName string) (bool, error)
-	EnsureAdminRole(ctx context.Context) (uint, error)
+	CreateRole(ctx context.Context, name, description string) (*model.Roles, error)             // 创建规则
+	CreatePermission(ctx context.Context, name, description string) (*model.Permissions, error) // 创建权限
+	AddPermissionToRole(ctx context.Context, roleID, permID uint) error                         // 添加权限
+	RemovePermissionFromRole(ctx context.Context, roleID, permID uint) error                    // 移除权限
+	ListPermissionsByRole(ctx context.Context, roleID uint) ([]model.Permissions, error)        // 列出权限
+	HasPermission(ctx context.Context, roleID uint, permName string) (bool, error)              // 检查权限
+	EnsureAdminRole(ctx context.Context) (uint, error)                                          // 确保管理员角色
 }
 
 type permissionService struct {
@@ -41,6 +41,7 @@ func NewPermissionService(roles store.RoleStore, permissions store.PermissionSto
 	}
 }
 
+// 创建规则
 func (s *permissionService) CreateRole(ctx context.Context, name, description string) (*model.Roles, error) {
 	name = strings.TrimSpace(name)
 	description = strings.TrimSpace(description)
@@ -62,6 +63,7 @@ func (s *permissionService) CreateRole(ctx context.Context, name, description st
 	return role, nil
 }
 
+// 创建权限
 func (s *permissionService) CreatePermission(ctx context.Context, name, description string) (*model.Permissions, error) {
 	name = strings.TrimSpace(name)
 	description = strings.TrimSpace(description)
@@ -83,6 +85,7 @@ func (s *permissionService) CreatePermission(ctx context.Context, name, descript
 	return permission, nil
 }
 
+// 添加权限
 func (s *permissionService) AddPermissionToRole(ctx context.Context, roleID, permID uint) error {
 	if roleID == 0 || permID == 0 {
 		return ErrInvalidInput
@@ -100,6 +103,7 @@ func (s *permissionService) AddPermissionToRole(ctx context.Context, roleID, per
 	return s.rolePermissions.AddPermission(ctx, roleID, permID)
 }
 
+// 移除权限
 func (s *permissionService) RemovePermissionFromRole(ctx context.Context, roleID, permID uint) error {
 	if roleID == 0 || permID == 0 {
 		return ErrInvalidInput
@@ -107,6 +111,7 @@ func (s *permissionService) RemovePermissionFromRole(ctx context.Context, roleID
 	return s.rolePermissions.RemovePermission(ctx, roleID, permID)
 }
 
+// 列出权限
 func (s *permissionService) ListPermissionsByRole(ctx context.Context, roleID uint) ([]model.Permissions, error) {
 	if roleID == 0 {
 		return nil, ErrInvalidInput
@@ -121,6 +126,7 @@ func (s *permissionService) ListPermissionsByRole(ctx context.Context, roleID ui
 	return s.permissions.ListByIDs(ctx, ids)
 }
 
+// 检查权限
 func (s *permissionService) HasPermission(ctx context.Context, roleID uint, permName string) (bool, error) {
 	permName = strings.TrimSpace(permName)
 	if roleID == 0 || permName == "" {
@@ -129,6 +135,7 @@ func (s *permissionService) HasPermission(ctx context.Context, roleID uint, perm
 	return s.rolePermissions.HasPermission(ctx, roleID, permName)
 }
 
+// 确保管理员角色
 func (s *permissionService) EnsureAdminRole(ctx context.Context) (uint, error) {
 	role, err := s.roles.GetByName(ctx, "admin")
 	if errors.Is(err, gorm.ErrRecordNotFound) {

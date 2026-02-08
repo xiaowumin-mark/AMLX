@@ -23,9 +23,9 @@ var (
 )
 
 type TokenPair struct {
-	AccessToken     string    `json:"access_token"`
-	RefreshToken    string    `json:"refresh_token"`
-	AccessExpiresAt time.Time `json:"access_expires_at"`
+	AccessToken      string    `json:"access_token"`
+	RefreshToken     string    `json:"refresh_token"`
+	AccessExpiresAt  time.Time `json:"access_expires_at"`
 	RefreshExpiresAt time.Time `json:"refresh_expires_at"`
 }
 
@@ -58,6 +58,7 @@ type authService struct {
 	cfg           config.AuthConfig
 }
 
+// NewAuthService 创建一个AuthService实例
 func NewAuthService(cfg config.AuthConfig, users store.UserStore, refreshTokens store.RefreshTokenStore, tokens *JWTManager) AuthService {
 	return &authService{
 		users:         users,
@@ -67,6 +68,7 @@ func NewAuthService(cfg config.AuthConfig, users store.UserStore, refreshTokens 
 	}
 }
 
+// 用户注册
 func (s *authService) Register(ctx context.Context, req RegisterRequest) (*model.Users, *TokenPair, error) {
 	if !s.cfg.AllowRegisterValue() {
 		return nil, nil, ErrRegistrationClosed
@@ -111,6 +113,7 @@ func (s *authService) Register(ctx context.Context, req RegisterRequest) (*model
 	return user, pair, nil
 }
 
+// 用户登录
 func (s *authService) Login(ctx context.Context, req LoginRequest) (*model.Users, *TokenPair, error) {
 	email := strings.TrimSpace(strings.ToLower(req.Email))
 	password := strings.TrimSpace(req.Password)
@@ -139,6 +142,7 @@ func (s *authService) Login(ctx context.Context, req LoginRequest) (*model.Users
 	return user, pair, nil
 }
 
+// 刷新令牌
 func (s *authService) Refresh(ctx context.Context, refreshToken string) (*TokenPair, error) {
 	refreshToken = strings.TrimSpace(refreshToken)
 	if refreshToken == "" {
@@ -185,6 +189,7 @@ func (s *authService) Refresh(ctx context.Context, refreshToken string) (*TokenP
 	return pair, nil
 }
 
+// 登出
 func (s *authService) Logout(ctx context.Context, refreshToken string) error {
 	refreshToken = strings.TrimSpace(refreshToken)
 	if refreshToken == "" {
@@ -193,6 +198,7 @@ func (s *authService) Logout(ctx context.Context, refreshToken string) error {
 	return s.refreshTokens.Revoke(ctx, hashToken(refreshToken))
 }
 
+// 登出所有
 func (s *authService) LogoutAll(ctx context.Context, userID uint) error {
 	if userID == 0 {
 		return ErrInvalidInput
@@ -200,10 +206,12 @@ func (s *authService) LogoutAll(ctx context.Context, userID uint) error {
 	return s.refreshTokens.RevokeByUser(ctx, userID)
 }
 
+// 解析访问令牌
 func (s *authService) ParseAccessToken(token string) (*AccessClaims, error) {
 	return s.tokens.ParseAccessToken(token)
 }
 
+// 修改密码
 func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPassword, newPassword string) error {
 	if userID == 0 {
 		return ErrInvalidInput
@@ -230,6 +238,7 @@ func (s *authService) ChangePassword(ctx context.Context, userID uint, oldPasswo
 	return s.users.Update(ctx, user)
 }
 
+// 生成令牌对
 func (s *authService) issueTokenPair(ctx context.Context, user *model.Users) (*TokenPair, error) {
 	accessToken, accessExpires, err := s.tokens.GenerateAccessToken(user)
 	if err != nil {
@@ -249,18 +258,20 @@ func (s *authService) issueTokenPair(ctx context.Context, user *model.Users) (*T
 		return nil, err
 	}
 	return &TokenPair{
-		AccessToken:     accessToken,
-		RefreshToken:    refreshToken,
-		AccessExpiresAt: accessExpires,
+		AccessToken:      accessToken,
+		RefreshToken:     refreshToken,
+		AccessExpiresAt:  accessExpires,
 		RefreshExpiresAt: refreshExpires,
 	}, nil
 }
 
+// 令牌哈希
 func hashToken(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])
 }
 
+// 解析主题
 func parseSubject(subject string) (uint, error) {
 	parsed, err := strconv.ParseUint(subject, 10, 64)
 	if err != nil {

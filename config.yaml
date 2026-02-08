@@ -35,6 +35,6 @@ auth:
   bcrypt_cost: 10
   allow_register: true
   allow_register_role: false
-  default_role_id: 1
+  default_role_id: 2
   refresh_token_reuse: false
   bootstrap_admin_role: true

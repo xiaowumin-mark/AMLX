@@ -24,8 +24,8 @@ const (
 
 type AccessClaims struct {
 	jwt.RegisteredClaims
-	RoleID uint     `json:"role_id"`
-	Email  string   `json:"email"`
+	RoleID uint      `json:"role_id"`
+	Email  string    `json:"email"`
 	Type   TokenType `json:"typ"`
 }
 
@@ -36,6 +36,7 @@ type JWTManager struct {
 	refreshTTL time.Duration
 }
 
+// NewJWTManager 创建JWTManager
 func NewJWTManager(cfg config.AuthConfig) (*JWTManager, error) {
 	if cfg.JWTSecret == "" {
 		return nil, errors.New("auth.jwt_secret is required")
@@ -48,6 +49,7 @@ func NewJWTManager(cfg config.AuthConfig) (*JWTManager, error) {
 	}, nil
 }
 
+// 创建AccessToken
 func (m *JWTManager) GenerateAccessToken(user *model.Users) (string, time.Time, error) {
 	now := time.Now()
 	expiresAt := now.Add(m.accessTTL)
@@ -68,6 +70,7 @@ func (m *JWTManager) GenerateAccessToken(user *model.Users) (string, time.Time, 
 	return signed, expiresAt, err
 }
 
+// 创建RefreshToken
 func (m *JWTManager) GenerateRefreshToken(user *model.Users) (string, time.Time, error) {
 	now := time.Now()
 	expiresAt := now.Add(m.refreshTTL)
@@ -88,6 +91,7 @@ func (m *JWTManager) GenerateRefreshToken(user *model.Users) (string, time.Time,
 	return signed, expiresAt, err
 }
 
+// 解析AccessToken
 func (m *JWTManager) ParseAccessToken(tokenStr string) (*AccessClaims, error) {
 	claims, err := m.parse(tokenStr)
 	if err != nil {
@@ -99,6 +103,7 @@ func (m *JWTManager) ParseAccessToken(tokenStr string) (*AccessClaims, error) {
 	return claims, nil
 }
 
+// 解析RefreshToken
 func (m *JWTManager) ParseRefreshToken(tokenStr string) (*AccessClaims, error) {
 	claims, err := m.parse(tokenStr)
 	if err != nil {
@@ -110,6 +115,7 @@ func (m *JWTManager) ParseRefreshToken(tokenStr string) (*AccessClaims, error) {
 	return claims, nil
 }
 
+// 解析Token
 func (m *JWTManager) parse(tokenStr string) (*AccessClaims, error) {
 	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	claims := &AccessClaims{}
@@ -128,6 +134,7 @@ func (m *JWTManager) parse(tokenStr string) (*AccessClaims, error) {
 	return claims, nil
 }
 
+// 格式化Subject
 func formatSubject(id uint) string {
 	return fmt.Sprintf("%d", id)
 }

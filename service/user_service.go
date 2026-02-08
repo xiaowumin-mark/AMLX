@@ -47,6 +47,7 @@ func NewUserService(users store.UserStore, bcryptCost int) UserService {
 	return &userService{users: users, cost: bcryptCost}
 }
 
+// 创建用户
 func (s *userService) Create(ctx context.Context, req CreateUserRequest) (*model.Users, error) {
 	req.Name = strings.TrimSpace(req.Name)
 	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
@@ -77,6 +78,7 @@ func (s *userService) Create(ctx context.Context, req CreateUserRequest) (*model
 	return user, nil
 }
 
+// 通过id获取用户
 func (s *userService) GetByID(ctx context.Context, id uint) (*model.Users, error) {
 	if id == 0 {
 		return nil, ErrInvalidInput
@@ -88,6 +90,7 @@ func (s *userService) GetByID(ctx context.Context, id uint) (*model.Users, error
 	return user, err
 }
 
+// 通过email获取用户
 func (s *userService) GetByEmail(ctx context.Context, email string) (*model.Users, error) {
 	email = strings.TrimSpace(email)
 	email = strings.ToLower(email)
@@ -101,6 +104,7 @@ func (s *userService) GetByEmail(ctx context.Context, email string) (*model.User
 	return user, err
 }
 
+// 更新用户
 func (s *userService) Update(ctx context.Context, id uint, req UpdateUserRequest) (*model.Users, error) {
 	if id == 0 {
 		return nil, ErrInvalidInput
@@ -162,6 +166,7 @@ func (s *userService) Update(ctx context.Context, id uint, req UpdateUserRequest
 	return user, nil
 }
 
+// 封禁用户
 func (s *userService) SetBan(ctx context.Context, id uint, ban bool) error {
 	if id == 0 {
 		return ErrInvalidInput

@@ -66,6 +66,7 @@ type AuthConfig struct {
 	BootstrapAdminRole *bool         `yaml:"bootstrap_admin_role"`
 }
 
+// 加载配置
 func Load(path string) (*Config, error) {
 	if path == "" {
 		path = "config.yaml"
@@ -90,6 +91,7 @@ func Load(path string) (*Config, error) {
 	return &cfg, nil
 }
 
+// 是否解析时间
 func (c MySQLConfig) ParseTimeValue() bool {
 	if c.ParseTime == nil {
 		return true
@@ -97,6 +99,7 @@ func (c MySQLConfig) ParseTimeValue() bool {
 	return *c.ParseTime
 }
 
+// 是否允许注册
 func (c AuthConfig) AllowRegisterValue() bool {
 	if c.AllowRegister == nil {
 		return true
@@ -104,6 +107,7 @@ func (c AuthConfig) AllowRegisterValue() bool {
 	return *c.AllowRegister
 }
 
+// 是否自动创建管理员角色
 func (c AuthConfig) BootstrapAdminRoleValue() bool {
 	if c.BootstrapAdminRole == nil {
 		return true
@@ -111,6 +115,7 @@ func (c AuthConfig) BootstrapAdminRoleValue() bool {
 	return *c.BootstrapAdminRole
 }
 
+// 配置默认值
 func applyDefaults(cfg *Config) {
 	if cfg.MySQL.Host == "" {
 		cfg.MySQL.Host = "127.0.0.1"
@@ -208,6 +213,7 @@ func applyDefaults(cfg *Config) {
 	}
 }
 
+// 验证配置
 func validate(cfg *Config) error {
 	if cfg.MySQL.Host == "" {
 		return errors.New("mysql.host is required")
